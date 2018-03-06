@@ -6,8 +6,11 @@ import { Point, X, Y } from './point'
 
 import {
   CardinalDirection, VerticalDirection, HorizontalDirection, DIRECTION_NORTH,
-  DIRECTION_EAST, DIRECTION_SOUTH, DIRECTION_WEST, DIRECTION_NONE, Direction
+  DIRECTION_EAST, DIRECTION_SOUTH, DIRECTION_WEST, DIRECTION_NONE, Direction,
+  DIRECTION_SOUTH_EAST, DIRECTION_NORTH_EAST, DIRECTION_NORTH_WEST,
+  DIRECTION_SOUTH_WEST
 } from './directions'
+
 import { actionFromKeycode } from './keys';
 
 const b = document.body
@@ -51,37 +54,29 @@ const start = async () => {
   }
 
   canvas.onclick = e => {
-    const [ tileX, tileY ] = mouseEventToTileLocation( e )
+    const center = [ canvas.width / 2, canvas.height / 2 ]
+    const vector = [ e.offsetX - center[ X ], e.offsetY - center[ Y ] ]
+    const radians = Math.atan2( vector[ X ], vector[ Y ] )
+    const dir = ( 16 + Math.round( 8 * radians / Math.PI ) ) % 16
 
-    const vertical: VerticalDirection =
-      tileY < viewOff[ Y ] ?
-      DIRECTION_NORTH :
-      tileY > viewOff[ Y ] ?
-      DIRECTION_SOUTH :
-      DIRECTION_NONE
+    let direction: Direction = DIRECTION_NONE
 
-    const horizontal: HorizontalDirection =
-      tileX < viewOff[ X ] ?
-      DIRECTION_WEST :
-      tileX > viewOff[ X ] ?
-      DIRECTION_EAST :
-      DIRECTION_NONE
-
-    let direction: CardinalDirection = DIRECTION_NONE
-
-    const distanceX = Math.abs( tileX - viewOff[ X ] )
-    const distanceY = Math.abs( tileY - viewOff[ Y ] )
-
-    if( horizontal !== DIRECTION_NONE && vertical === DIRECTION_NONE ){
-      direction = horizontal
-    } else if( vertical !== DIRECTION_NONE && horizontal === DIRECTION_NONE ){
-      direction = vertical
+    if( dir >= 1 && dir < 3 ){
+      direction = DIRECTION_SOUTH_EAST
+    } else if( dir >= 3 && dir < 5 ){
+      direction = DIRECTION_EAST
+    } else if( dir >= 5 && dir < 7 ){
+      direction = DIRECTION_NORTH_EAST
+    } else if( dir >= 7 && dir < 9 ){
+      direction = DIRECTION_NORTH
+    } else if( dir >= 9 && dir < 11 ){
+      direction = DIRECTION_NORTH_WEST
+    } else if( dir >= 11 && dir < 13 ){
+      direction = DIRECTION_WEST
+    } else if( dir >= 13 && dir < 15 ){
+      direction = DIRECTION_SOUTH_WEST
     } else {
-      if( distanceX > distanceY ){
-        direction = horizontal
-      } else if( distanceY > distanceX ){
-        direction = vertical
-      }
+      direction = DIRECTION_SOUTH
     }
 
     playerAction( direction )

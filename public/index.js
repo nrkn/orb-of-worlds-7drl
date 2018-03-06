@@ -345,33 +345,34 @@ const start = async () => {
         return [tileX, tileY];
     };
     canvas.onclick = e => {
-        const [tileX, tileY] = mouseEventToTileLocation(e);
-        const vertical = tileY < viewOff[point_1.Y] ?
-            directions_1.DIRECTION_NORTH :
-            tileY > viewOff[point_1.Y] ?
-                directions_1.DIRECTION_SOUTH :
-                directions_1.DIRECTION_NONE;
-        const horizontal = tileX < viewOff[point_1.X] ?
-            directions_1.DIRECTION_WEST :
-            tileX > viewOff[point_1.X] ?
-                directions_1.DIRECTION_EAST :
-                directions_1.DIRECTION_NONE;
+        const center = [canvas.width / 2, canvas.height / 2];
+        const vector = [e.offsetX - center[point_1.X], e.offsetY - center[point_1.Y]];
+        const radians = Math.atan2(vector[point_1.X], vector[point_1.Y]);
+        const dir = (16 + Math.round(8 * radians / Math.PI)) % 16;
         let direction = directions_1.DIRECTION_NONE;
-        const distanceX = Math.abs(tileX - viewOff[point_1.X]);
-        const distanceY = Math.abs(tileY - viewOff[point_1.Y]);
-        if (horizontal !== directions_1.DIRECTION_NONE && vertical === directions_1.DIRECTION_NONE) {
-            direction = horizontal;
+        if (dir >= 1 && dir < 3) {
+            direction = directions_1.DIRECTION_SOUTH_EAST;
         }
-        else if (vertical !== directions_1.DIRECTION_NONE && horizontal === directions_1.DIRECTION_NONE) {
-            direction = vertical;
+        else if (dir >= 3 && dir < 5) {
+            direction = directions_1.DIRECTION_EAST;
+        }
+        else if (dir >= 5 && dir < 7) {
+            direction = directions_1.DIRECTION_NORTH_EAST;
+        }
+        else if (dir >= 7 && dir < 9) {
+            direction = directions_1.DIRECTION_NORTH;
+        }
+        else if (dir >= 9 && dir < 11) {
+            direction = directions_1.DIRECTION_NORTH_WEST;
+        }
+        else if (dir >= 11 && dir < 13) {
+            direction = directions_1.DIRECTION_WEST;
+        }
+        else if (dir >= 13 && dir < 15) {
+            direction = directions_1.DIRECTION_SOUTH_WEST;
         }
         else {
-            if (distanceX > distanceY) {
-                direction = horizontal;
-            }
-            else if (distanceY > distanceX) {
-                direction = vertical;
-            }
+            direction = directions_1.DIRECTION_SOUTH;
         }
         playerAction(direction);
     };
