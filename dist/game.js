@@ -25,6 +25,7 @@ exports.Game = (viewSize, fov, putChar) => {
     /*
       Game state
     */
+    const levels = [];
     let currentLevel = 0;
     let level;
     const player = [
@@ -34,10 +35,19 @@ exports.Game = (viewSize, fov, putChar) => {
       Level generator
     */
     const NewLevel = () => {
+        if (levels[currentLevel]) {
+            if (levels[currentLevel] !== level)
+                level = levels[currentLevel];
+            return;
+        }
         const floors = [
             tile_1.floor(player)
         ];
         const mobs = [player];
+        if (currentLevel > 0) {
+            const stairsUp = [player[point_1.X], player[point_1.Y], tile_1.TILE_TYPE_STAIRS_UP, 1, chars_1.CHAR_STAIRS_UP, colors_1.COLOR_STAIRS_DOWN];
+            mobs.push(stairsUp);
+        }
         /*
           Cave more likely to be larger and have more monsters etc as you move down
           the levels
@@ -48,12 +58,6 @@ exports.Game = (viewSize, fov, putChar) => {
         const levelMonsters = util_1.randInt(currentLevel * monsterCount) + monsterCount;
         const levelPotions = util_1.randInt(currentLevel * monsterCount) + monsterCount;
         level = cave_generator_1.Cave([levelWidth, levelHeight], levelRooms, floors, mobs);
-        /*
-          Would be ideal to not have stairs block corridors as it can make some parts
-          of the map unreachable, but that's exprensive and the levels are at least
-          always finishable
-        */
-        level_1.addMob(level, tile_1.TILE_TYPE_STAIRS_DOWN, 1, currentLevel > 8 ? chars_1.CHAR_WIN : chars_1.CHAR_STAIRS_DOWN, currentLevel > 8 ? colors_1.COLOR_WIN : colors_1.COLOR_STAIRS_DOWN);
         /*
           Place monsters at random free floor locations
         */
@@ -66,6 +70,19 @@ exports.Game = (viewSize, fov, putChar) => {
         for (let i = 0; i < levelPotions; i++) {
             level_1.addMob(level, tile_1.TILE_TYPE_POTION, 1, chars_1.CHAR_POTION, colors_1.COLOR_POTION);
         }
+        /*
+          Would be ideal to not have stairs block corridors as it can make some parts
+          of the map unreachable, but that's exprensive and the levels are at least
+          always finishable
+        */
+        const stairs = level_1.addMob(level, tile_1.TILE_TYPE_STAIRS_DOWN, 1, currentLevel > 8 ? chars_1.CHAR_WIN : chars_1.CHAR_STAIRS_DOWN, currentLevel > 8 ? colors_1.COLOR_WIN : colors_1.COLOR_STAIRS_DOWN);
+        const n = point_1.neighbours(stairs);
+        n.forEach(p => {
+            if (!util_1.collides(level[level_1.FLOORS], p)) {
+                level[level_1.FLOORS].push(tile_1.floor(p));
+            }
+        });
+        levels[currentLevel] = level;
     };
     const draw = () => {
         const isDead = player[tile_1.HP] < 1;
@@ -124,6 +141,13 @@ exports.Game = (viewSize, fov, putChar) => {
             currentTile[tile_1.TILE_TYPE] === tile_1.TILE_TYPE_STAIRS_DOWN) {
             currentLevel++;
             NewLevel();
+        }
+        else if (currentTile && mob[tile_1.TILE_TYPE] === tile_1.TILE_TYPE_PLAYER &&
+            currentTile[tile_1.TILE_TYPE] === tile_1.TILE_TYPE_STAIRS_UP) {
+            currentLevel--;
+            NewLevel();
+            mob[point_1.X] = currentPosition[point_1.X];
+            mob[point_1.Y] = currentPosition[point_1.Y];
         }
         else if (currentTile && currentTile[tile_1.TILE_TYPE] === tile_1.TILE_TYPE_POTION) {
             mob[tile_1.HP]++;

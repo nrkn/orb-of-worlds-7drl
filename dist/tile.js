@@ -15,6 +15,7 @@ exports.TILE_TYPE_MONSTER = 2;
 exports.TILE_TYPE_STAIRS_DOWN = 3;
 exports.TILE_TYPE_POTION = 4;
 exports.TILE_TYPE_WALL = 5;
+exports.TILE_TYPE_STAIRS_UP = 6;
 exports.floor = (point) => {
     return [point[point_1.X], point[point_1.Y], exports.TILE_TYPE_FLOOR, 1, chars_1.CHAR_FLOOR, colors_1.COLOR_FLOOR];
 };

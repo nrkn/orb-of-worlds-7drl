@@ -14,7 +14,7 @@ export const SEEN = 6
 export type FloorType = 0
 export type PlayerType = 1
 export type WallType = 5
-export type MobType = 1 | 2 | 3 | 4 | 5
+export type MobType = 1 | 2 | 3 | 4 | 5 | 6
 export type TileType = FloorType | MobType
 
 export const TILE_TYPE_FLOOR: TileType & FloorType = 0
@@ -23,6 +23,7 @@ export const TILE_TYPE_MONSTER: TileType & MobType = 2
 export const TILE_TYPE_STAIRS_DOWN: TileType & MobType = 3
 export const TILE_TYPE_POTION: TileType & MobType = 4
 export const TILE_TYPE_WALL: TileType & MobType & WallType = 5
+export const TILE_TYPE_STAIRS_UP: TileType & MobType = 6
 
 export interface Tile extends Point {
   2: TileType

@@ -1,14 +1,14 @@
-import { Point, X, Y } from './point'
+import { Point, X, Y, neighbours } from './point'
 import { PutChar, drawFilled, drawLevel } from './draw'
 import { Level, addMob, MOBS, FLOORS, atPoint, LevelTileIndice } from './level'
 
 import {
   Mob, TILE_TYPE_PLAYER, Floor, floor, TILE_TYPE_STAIRS_DOWN, TILE_TYPE_MONSTER,
-  TILE_TYPE_POTION, HP, TILE_TYPE, Tile
+  TILE_TYPE_POTION, HP, TILE_TYPE, Tile, TILE_TYPE_STAIRS_UP
 } from './tile'
 
 import {
-  CHAR_PLAYER, CHAR_WIN, CHAR_STAIRS_DOWN, CHAR_MONSTER, CHAR_POTION, CHAR_DEAD
+  CHAR_PLAYER, CHAR_WIN, CHAR_STAIRS_DOWN, CHAR_MONSTER, CHAR_POTION, CHAR_DEAD, CHAR_STAIRS_UP
 } from './chars'
 
 import {
@@ -38,6 +38,7 @@ export const Game = ( viewSize: Point, fov: number, putChar: PutChar ) => {
   /*
     Game state
   */
+  const levels: Level[] = []
   let currentLevel = 0
   let level: Level
 
@@ -49,11 +50,23 @@ export const Game = ( viewSize: Point, fov: number, putChar: PutChar ) => {
     Level generator
   */
   const NewLevel = () => {
+    if( levels[ currentLevel ] ){
+      if( levels[ currentLevel ] !== level ) level = levels[ currentLevel ]
+      return
+    }
+
     const floors: Floor[] = [
       floor( player )
     ]
 
     const mobs: Mob[] = [ player ]
+
+    if( currentLevel > 0 ){
+      const stairsUp: Mob = 
+        [ player[ X ], player[ Y ], TILE_TYPE_STAIRS_UP, 1, CHAR_STAIRS_UP, COLOR_STAIRS_DOWN ] 
+
+      mobs.push( stairsUp )
+    }
 
     /*
       Cave more likely to be larger and have more monsters etc as you move down
@@ -68,19 +81,6 @@ export const Game = ( viewSize: Point, fov: number, putChar: PutChar ) => {
     level = Cave( [ levelWidth, levelHeight ], levelRooms, floors, mobs )
 
     /*
-      Would be ideal to not have stairs block corridors as it can make some parts
-      of the map unreachable, but that's exprensive and the levels are at least
-      always finishable
-    */
-    addMob(
-      level,
-      TILE_TYPE_STAIRS_DOWN,
-      1,
-      currentLevel > 8 ? CHAR_WIN : CHAR_STAIRS_DOWN,
-      currentLevel > 8 ? COLOR_WIN : COLOR_STAIRS_DOWN
-    )
-
-    /*
       Place monsters at random free floor locations
     */
     for( let i = 0; i < levelMonsters; i++ ){
@@ -93,6 +93,29 @@ export const Game = ( viewSize: Point, fov: number, putChar: PutChar ) => {
     for( let i = 0; i < levelPotions; i++ ){
       addMob( level, TILE_TYPE_POTION, 1, CHAR_POTION, COLOR_POTION )
     }
+
+    /*
+      Would be ideal to not have stairs block corridors as it can make some parts
+      of the map unreachable, but that's exprensive and the levels are at least
+      always finishable
+    */
+    const stairs = addMob(
+      level,
+      TILE_TYPE_STAIRS_DOWN,
+      1,
+      currentLevel > 8 ? CHAR_WIN : CHAR_STAIRS_DOWN,
+      currentLevel > 8 ? COLOR_WIN : COLOR_STAIRS_DOWN
+    )
+
+    const n = neighbours( stairs )
+
+    n.forEach( p => {
+      if( !collides( level[ FLOORS ], p ) ){
+        (<Floor[]>level[ FLOORS ]).push( floor( p ) )
+      }
+    })
+
+    levels[ currentLevel ] = level
   }
 
   const draw = () => {
@@ -180,6 +203,18 @@ export const Game = ( viewSize: Point, fov: number, putChar: PutChar ) => {
       NewLevel()
     }
     /*
+      Player moved on to stairs up, go up one level
+    */
+    else if(
+      currentTile && mob[ TILE_TYPE ] === TILE_TYPE_PLAYER &&
+      currentTile[ TILE_TYPE ] === TILE_TYPE_STAIRS_UP
+    ){       
+      mob[ X ] = currentPosition[ X ]
+      mob[ Y ] = currentPosition[ Y ]
+      currentLevel--
+      NewLevel()
+    }
+     /*
       Potion - note that monsters can also pick up potions - to change, check
       if mob is player, but this is more fun for game play as it creates some
       monsters that are stronger as the monsters traverse the level and get

@@ -1,1 +1,1 @@
-export declare const actionFromKeycode: (keycode: number) => 0 | 1 | -1 | 2 | 3 | 4 | 5 | 6 | 7;
+export declare const actionFromKeycode: (keycode: number) => 0 | 2 | 7 | 6 | 5 | 4 | 3 | 1 | -1;

@@ -9,7 +9,7 @@ export declare const SEEN = 6;
 export declare type FloorType = 0;
 export declare type PlayerType = 1;
 export declare type WallType = 5;
-export declare type MobType = 1 | 2 | 3 | 4 | 5;
+export declare type MobType = 1 | 2 | 3 | 4 | 5 | 6;
 export declare type TileType = FloorType | MobType;
 export declare const TILE_TYPE_FLOOR: TileType & FloorType;
 export declare const TILE_TYPE_PLAYER: TileType & MobType & PlayerType;
@@ -17,6 +17,7 @@ export declare const TILE_TYPE_MONSTER: TileType & MobType;
 export declare const TILE_TYPE_STAIRS_DOWN: TileType & MobType;
 export declare const TILE_TYPE_POTION: TileType & MobType;
 export declare const TILE_TYPE_WALL: TileType & MobType & WallType;
+export declare const TILE_TYPE_STAIRS_UP: TileType & MobType;
 export interface Tile extends Point {
     2: TileType;
     3: number;

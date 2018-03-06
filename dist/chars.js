@@ -5,6 +5,7 @@ exports.CHAR_WALL = '#';
 exports.CHAR_FLOOR = '.';
 exports.CHAR_MONSTER = 'm';
 exports.CHAR_STAIRS_DOWN = '>';
+exports.CHAR_STAIRS_UP = '<';
 exports.CHAR_POTION = '!';
 exports.CHAR_WIN = '$';
 exports.CHAR_DEAD = '0';

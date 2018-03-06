@@ -10,9 +10,9 @@
 - ✔️ touch controls for mobile
 - ✔️ refactor from 1k version for easier development
 - ️✔️ diagonal movement
-- ensure stairs never block
-- improve monster AI
-- move up and down stairs, persistent dungeons
+-️ ✔️ ensure stairs never block
+- ✔️ improve monster AI
+- ✔️ move up and down stairs, persistent dungeons
 - save/load system
 - multiple monster types
 - UI
